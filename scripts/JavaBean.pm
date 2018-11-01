@@ -34,33 +34,32 @@ Encode::_utf8_on($getTemplate);
 sub camelStyle{
 	my $word=shift;
 	$word=~s/^(?:\_|\$)//;
-	if($word=~/^[a-z](?:[a-z]+|[a-z]+[A-Z])[a-z]+$/){
-		return $word;
-	}
-	elsif($word=~/^[A-Z](?:[a-z]+|[a-z]+[A-Z])[a-z]+$/){
+	
+	if($word=~/(?:[A-Z][a-z]+)+/){
     	$word=~s/^[A-Z]/\L$&/;
 		return $word;
 	}
-    $word=lc($word);
-    $word=~s/\_[a-z]/\U$&/g;
-    $word=~s/\_//g;
-    $word;
+	
+  $word=lc($word);
+  $word=~s/\_[a-z]/\U$&/g;
+  $word=~s/\_//g;
+  $word=~s/^[A-Z]/\U$&/;
+  $word;
 }
   
 sub pascalCaseStyle{
 	my $word=shift;
 	$word=~s/^\_//;
-	if($word=~/^[A-Z](?:[a-z]+|[a-z]+[A-Z])[a-z]+$/){
-		return $word;
-	}
-	elsif($word=~/^[a-z](?:[a-z]+|[a-z]+[A-Z])[a-z]+$/){
+	
+	if($word=~/(?:[a-z]+[A-Z])+/){
     	$word=~s/^[a-z]/\U$&/;
 		return $word;
 	}
-    $word=lc($word);
-    $word=~s/\_[a-z]/\U$&/g;
-    $word=~s/\_//g;
-    $word;
+  $word=lc($word);
+  $word=~s/\_[a-z]/\U$&/g;
+  $word=~s/\_//g;
+  $word=~s/^[a-z]/\U$&/;
+  $word;
 }
  
 	
@@ -74,6 +73,7 @@ sub process{
 		if(@matches&&$len>=3){
 			my $field=camelStyle($matches[0]);
 			my $method=pascalCaseStyle($matches[0]);
+			say $method;
 			my $type=$matches[1];
 	    	my $comment=$matches[2];
 			if($choose eq 'get'){
@@ -98,12 +98,13 @@ sub main{
 	Encode::_utf8_on($text);
 	my @lines=split /\r|\n/, $text;
 	my $result=''; 
+	my $fields='';
 	foreach my $line (@lines){
-		$result.= process($line,'field');
+	  $fields.=process($line,'field');
 		$result.= process($line,'set');
 		$result.= process($line,'get');
 	}
-	$result;
+	$fields.$result;
 }
 
 1;
